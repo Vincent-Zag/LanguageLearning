@@ -14,6 +14,7 @@ client = MongoClient("mongodb+srv://admin:password101@quizbank.tx6gspj.mongodb.n
 db = client.get_database("translations")
 users_collection = db.users
 cards_collection = db.bank
+quiz_collection = db.quiz
 
 def is_user_logged_in():
     return 'user_id' in session
@@ -105,6 +106,16 @@ def register():
             return redirect(url_for('login', registration_success=True))
 
     return render_template('register.html', message=message, first_name=first_name)
+
+#Quiz Endpoint
+#Create Quiz
+# @app.route('/quiz/get-quiz')
+# def get_quiz():
+
+# #create quiz
+# @app.route('/quiz/create-quiz')
+# def create_quiz():
+
 
 
 #Questions Endpoint
