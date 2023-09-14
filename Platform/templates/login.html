@@ -3,6 +3,122 @@
 <head>
     <title>Login</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* CSS Button*/
+        h2{
+  font-family: 'Inter-Tight', sans-serif;
+}
+        .button-20 {
+  appearance: button;
+  background-color: #932687;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+  border:0px;
+  border-radius: 1rem;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  letter-spacing: 2.5px;
+  font-family: 'Roboto',sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: .5rem 1rem;
+  text-align: center;
+  text-transform: uppercase;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+}
+
+.button-20:focus:not(:focus-visible),
+.button-20:focus {
+  outline: 0;
+}
+
+.button-20:hover {
+  background-color: #cd2572;
+  border-color: #c521a6;
+  transform: scale(1.05);
+  box-shadow: 0px 15px 20px rgba(211, 38, 115, 0.4);
+}
+
+
+.button-20:focus {
+  background-color: #cd2572;
+  border-color: #c521a6;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:active {
+  background-color: #cd2572;
+  background-image: none;
+  border-color: #c521a6;
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+}
+
+.button-20:active:focus {
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(215, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:disabled {
+  background-image: none;
+  box-shadow: none;
+  opacity: .65;
+  pointer-events: none;
+}
+
+a:link {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a:visited {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:hover {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a:active {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+.custom-shape-divider-bottom-1694687427 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1694687427 svg {
+    position: relative;
+    display: block;
+    width: calc(144% + 1.3px);
+    height: 290px;
+}
+
+.custom-shape-divider-bottom-1694687427 .shape-fill {
+  fill:   #000;
+   
+}    
+    </style>
 </head>
 <body>
     {% include 'nav_menu.html' %} <!-- Include the navigation menu -->
@@ -16,17 +132,18 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6 offset-md-3">
-                <h2>Login</h2>
+                <center><h2>Login</h2></center>
                 <form action="{{ url_for('login') }}" method="POST">
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                       
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn btn-warning">Login</button>
+                    <center>
+                    <button type="submit" class="button-20">Login</button></center>
                 </form>
                 {% if message %}
                 <p class="mt-3 text-danger">{{ message }}</p>
@@ -38,5 +155,10 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div class="custom-shape-divider-bottom-1694687427">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+    </div>
 </body>
 </html>

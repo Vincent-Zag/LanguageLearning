@@ -120,7 +120,7 @@ def register():
 
 #Questions Endpoint
 #Create Question
-@app.route('/create_card', methods=['POST'])
+@app.route('/create_card', methods=['GET','POST'])
 def create_card():
     first_name = None
     user_logged_in = is_user_logged_in()

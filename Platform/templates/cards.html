@@ -9,6 +9,7 @@
         .card-flip {
             position: relative;
             perspective: 1000px;
+            cursor: pointer; /* Add cursor pointer to indicate clickability */
         }
 
         .card-inner {
@@ -24,6 +25,10 @@
             height: 100%;
             position: absolute;
             backface-visibility: hidden;
+            padding-top: 18%;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            
         }
 
         .card-front {
@@ -34,22 +39,41 @@
             transform: rotateY(180deg);
         }
 
-        .card:hover .card-inner {
+        .card-clicked .card-inner {
             transform: rotateY(180deg);
         }
+
+        .custom-shape-divider-bottom-1694687427 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1694687427 svg {
+    position: relative;
+    display: block;
+    width: calc(144% + 1.3px);
+    height: 290px;
+}
+
+.custom-shape-divider-bottom-1694687427 .shape-fill {
+  fill:   #000;
+   
+}    
     </style>
 </head>
 
 <body>
     {% include 'nav_menu.html' %}
-
     <div class="container mt-5">
-        <!-- Display Search Results -->
-
         <div class="row">
             <div class="col-md-10 offset-md-1">
-                <h2>Cards</h2>
-                    <div class="row">
+                <h2>Flashcards</h2>
+                <div class="row" style="height: 200px;">
                     {% for card in cards %}
                     <div class="col-md-4 mt-4 card-flip">
                         <div class="card card-inner">
@@ -74,6 +98,21 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div class="custom-shape-divider-bottom-1694687427">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+    </div>
+    <script>
+        // JavaScript to handle card click
+        const cards = document.querySelectorAll('.card-flip');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('card-clicked');
+            });
+        });
+    </script>
 </body>
 
 </html>

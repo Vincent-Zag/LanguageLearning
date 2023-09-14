@@ -1,24 +1,262 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Language Translation Platform</title>
+    <title>LingoPop - A Language Learning Platform</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="https://imageupload.io/ib/5hVbPTewzmNiCRq_1694624035.png"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight&family=Inter:wght@700&family=Lilita+One&family=Montserrat:wght@600;900&display=swap" rel="stylesheet">
+    <style>
+        /* Additional CSS to style the flip effect */
+        h1, h2 {
+            font-family: 'Inter Tight', sans-serif;
+           font-size: 60px;    
+      }
+      h4{
+           font-family: 'Inter Tight', sans-serif;
+           font-size: 50px;  
+           text-shadow: #000 2px 2px 2px;
+      }
+      h4 .moon-img{
+           font-family: 'Inter Tight', sans-serif;
+           font-size: 50px;  
+           text-shadow: #000 2px 2px 2px;
+           padding-top: -2%;
+      }
+        gradient1{
+            background: linear-gradient(210deg, #fb0094, #932687, #fb0094);
+            color: transparent;
+            -webkit-background-clip: text;
+            animation: colour-animate 30s linear infinite;
+        }
+
+        .spaceship-img {
+            margin: 0%;
+            position: relative;
+            height: 250px;
+            width: 250px;
+            background-image: url("https://imageupload.io/ib/KyuQfWmRrAbAA8G_1694638587.png");
+            background-repeat: no-repeat, repeat;
+            background-size: 250px;
+            background-size: 250px;
+            
+        }
+
+        .moon-img {
+            position: relative;
+            height: 250px;
+            width: 250px;
+            background-image: url("https://imageupload.io/ib/yxFcTyunVlfh3QW_1694638511.png");
+            background-repeat: no-repeat, repeat;
+            background-size: 250px;
+            background-size: 250px;
+        }
+
+         /*This CSS code is defining the styles for a container that holds text*/
+         .text-container {
+            margin-top:20%;
+            margin-right: 30px;
+            color: rgb(255, 255, 255);
+            left: 18rem;
+            top: 2rem;
+            /* background-color: rgb(41, 41, 41, 0.8); */
+            padding: 0 1rem;
+        }
+
+       /* CSS Button*/
+
+.button-20 {
+  appearance: button;
+  background-color: #932687;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+  
+  border-radius: 1rem;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  letter-spacing: 2.5px;
+  font-family: 'Roboto',sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: .5rem 1rem;
+  text-align: center;
+  text-transform: uppercase;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+}
+
+.button-20:focus:not(:focus-visible),
+.button-20:focus {
+  outline: 0;
+}
+
+.button-20:hover {
+  background-color: #cd2572;
+  border-color: #c521a6;
+  transform: scale(1.05);
+  box-shadow: 0px 15px 20px rgba(211, 38, 115, 0.4);
+}
+
+
+.button-20:focus {
+  background-color: #cd2572;
+  border-color: #c521a6;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:active {
+  background-color: #cd2572;
+  background-image: none;
+  border-color: #c521a6;
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+}
+
+.button-20:active:focus {
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(215, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:disabled {
+  background-image: none;
+  box-shadow: none;
+  opacity: .65;
+  pointer-events: none;
+}
+
+a.one:link {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a.one:visited {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a.one:hover {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a.one:active {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+.custom-shape-divider-bottom-1694687427 {
+    position: fixed;
+    bottom: 0;
+    left:0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+    z-index: -1;
+}
+
+.custom-shape-divider-bottom-1694687427 svg {
+    position: relative;
+    display: block;
+    width: calc(144% + 1.3px);
+    height: 290px;
+    z-index: -1;
+}
+
+.custom-shape-divider-bottom-1694687427 .shape-fill {
+  fill:   #000;
+   
+}    
+
+a.two:link {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a.two:visited {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a.two:hover {
+  color: rgb(179, 179, 179);
+  background-color: transparent;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+a.two:active {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+
+    </style>
 </head>
 <body>
     {% include 'nav_menu.html' %}
-
+ 
     <div class="container mt-5">
+        <center>
         <!-- Your content here -->
-        <h1>Welcome to the Language Translation Platform</h1>
+        
+        <h1>Welcome to <gradient1> LingoPop</gradient1>.</h1> 
+        <h2>Language Learning Simplified.</h2>
+       
         {% if user_logged_in %}
-            <p>Welcome {{ first_name }} {{ last_name }}. Use the user menu dropdown to get started.</p>
+            <p>Welcome <b>{{ first_name }} {{ last_name }}.</b></p> 
+            
+                <div class="container">
+                  <div class="row">
+                    <div class="col-sm">   <span style="cursor:pointer">
+                  <div class="spaceship-img card border-0 nav-link bg-transparent mb-3">           
+                      <p class="text-container"><a class="two" href="/quiz"><h4>Take A Quiz</h4></p>
+                        </div></span></div>
+                        <div class="col-sm">
+                          <div class="moon-img card border-0 nav-link bg-transparent mb-3"> 
+                      <p class="text-container"><a class="two" href="/card/list"><h4>View Cards</h4></p></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <!-- <p>Use the user menu dropdown to get started.</p> -->
         {% else %}
-            <p>Please log in to access additional features.</p>
+        
+            <p class="button-20" > <a class="one" href="/login">Login</a></p>
+            <p class="button-20" > <a class="one" href="/register">Register</a></p><p></p>
+            <p><img src="https://imageupload.io/ib/VQqm6Bdi7cuWfF2_1694692154.png" height="250" width="250"></p>
+        </center>
         {% endif %}
     </div>
+
+    
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+
+    <div class="custom-shape-divider-bottom-1694687427">
+      <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 220" preserveAspectRatio="none">
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+      </svg>
+  </div>
+    </body>
 </html>
