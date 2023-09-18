@@ -150,23 +150,26 @@ def create_card():
 
 
 #Delete Question
-@app.route('/card/delete', methods=['POST'])
-def delete_card():
-    user_logged_in = is_user_logged_in()
+@app.route('/card/delete/<card_english>', methods=['GET', 'POST'])
+def delete_card(card_english):
     first_name = None
+    user_logged_in = is_user_logged_in()
     if user_logged_in:
+        # Fetch the first_name based on user_id
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
 
-    search_term = request.args.get('searchTerm')
-    category = request.args.get('category')
-    
-    # Build the MongoDB query based on search_term and category (if provided)
-    query = {}
-    cards = cards_collection.delete_one(query)
-    
-    return render_template("cards.html", cards= cards, user_logged_in=user_logged_in, first_name=first_name)
+    if not user_logged_in:
+        return redirect(url_for('login'))
+
+    if request.method == "POST":
+        cards_collection.delete_one({"english": card_english})
+        message = 'Card deleted successfully!'
+        return render_template("cards.html", message=message, user_logged_in=user_logged_in, first_name=first_name)
+
+    return redirect(url_for('get_card_list'))
+
 
 @app.route('/card/list', methods=['GET'])
 def get_card_list():
