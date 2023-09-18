@@ -57,7 +57,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = users_collection.find_one({'username': username})
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             session['user_id'] = str(user['_id'])
             return redirect(url_for('index'))
         else:
@@ -152,21 +152,53 @@ def create_card():
 #Delete Question
 @app.route('/card/delete', methods=['POST'])
 def delete_card():
-    user_logged_in = is_user_logged_in()
     first_name = None
+    user_logged_in = is_user_logged_in()
     if user_logged_in:
+        # Fetch the first_name based on user_id
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
 
-    search_term = request.args.get('searchTerm')
-    category = request.args.get('category')
+    if not user_logged_in:
+        return redirect(url_for('login'))
     
-    # Build the MongoDB query based on search_term and category (if provided)
-    query = {}
-    cards = cards_collection.delete_one(query)
+    if request.method == "POST":
+        english = request.form.get("english")
+        cards_collection.delete_one({"english": english})
+        message = 'Card deleted successfully!'
+        return render_template("add_card.html", message=message, english=english, user_logged_in=user_logged_in, first_name=first_name)
+
+    english = cards_collection.find()
+    return render_template("add_card.html", english=english, user_logged_in=user_logged_in, first_name=first_name)
+
+        # translation = request.form.get("translation")
+        # difficulty = int(request.form.get("difficulty"))
+        # category = request.form.get("category")
+
     
-    return render_template("cards.html", cards= cards, user_logged_in=user_logged_in, first_name=first_name)
+    
+
+    # if not is_user_logged_in():
+    #     return jsonify({"message": "You must be logged in to delete a Card."}), 401
+    # user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+
+    # if not user:
+    #     return jsonify({"message": "You must be logged in to delete a Card."}), 401
+    # data = request.get_json()
+    
+    # if not data:
+    #     return jsonify({"message": "Request data missing."}), 400
+    # english = data.get('english')
+    # if not english:
+    #     return jsonify({"message": "Please provide the English translation of the card to delete."}), 400
+
+
+    # deleted_card = cards_collection.find_one_and_delete({'english': english})
+    # if not deleted_card:
+    #     return jsonify({"message": "Card not found."}), 404
+
+    # return jsonify({"message": "Card deleted successfully."}), 200
 
 @app.route('/card/list', methods=['GET'])
 def get_card_list():
