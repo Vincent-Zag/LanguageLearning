@@ -57,7 +57,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = users_collection.find_one({'username': username})
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             session['user_id'] = str(user['_id'])
             return redirect(url_for('index'))
         else:
@@ -169,7 +169,6 @@ def delete_card(card_english):
         return render_template("cards.html", message=message, user_logged_in=user_logged_in, first_name=first_name)
 
     return redirect(url_for('get_card_list'))
-
 
 @app.route('/card/list', methods=['GET'])
 def get_card_list():
