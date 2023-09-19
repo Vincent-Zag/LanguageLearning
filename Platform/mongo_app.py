@@ -3,8 +3,6 @@ from pymongo import MongoClient
 from bson import ObjectId
 import re
 import bcrypt
-
-
  
 app = Flask(__name__)
 app.secret_key = 'xyzsdfg'
@@ -30,7 +28,7 @@ def index():
             last_name = user.get('last_name')
     return render_template('index.html',user_logged_in=user_logged_in,first_name = first_name,last_name= last_name)
 
-#Check if user session is true
+
 @app.route('/check-login', methods=['GET'])
 def check_login():
     if 'user_id' in session:
@@ -42,13 +40,12 @@ def check_login():
                 "user": {
                     "first_name": user.get('first_name'),
                     "last_name": user.get('last_name'),
-                    # Add other user details
                 }
             }
             return jsonify(user_info), 200
     return jsonify({"logged_in": False}), 200
 
-#User Login
+
 @app.route('/login', methods=['GET','POST'])
 def login():
     registration_success = request.args.get('registration_success')
@@ -57,7 +54,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = users_collection.find_one({'username': username})
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
             session['user_id'] = str(user['_id'])
             return redirect(url_for('index'))
         else:
@@ -65,14 +62,12 @@ def login():
     return render_template('login.html', registration_success=registration_success)
 
 
-# User Logout 
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
-#creating restful friendly endpoints to interact with postman/react
-# User registration
+
 @app.route('/register', methods=['POST','GET'])
 def register():
     message = ''
@@ -97,7 +92,7 @@ def register():
                 'last_name': last_name,
                 'username': username,
                 'email': email,
-                'password': hashed_password  # Store the hashed password as bytes
+                'password': hashed_password 
             }
             users_collection.insert_one(user_data)
             message = 'You have successfully registered!'
@@ -114,7 +109,7 @@ def create_card():
     first_name = None
     user_logged_in = is_user_logged_in()
     if user_logged_in:
-        # Fetch the first_name based on user_id
+
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
@@ -128,7 +123,6 @@ def create_card():
         difficulty = int(request.form.get("difficulty"))
         category = request.form.get("category")
 
-        # Create the book data
         card_data = {
             "english":english,
             "translation": translation,
@@ -146,14 +140,11 @@ def create_card():
     return render_template("add_card.html", english=english, user_logged_in=user_logged_in, first_name=first_name)
 
 
-
-#Delete Question
-@app.route('/card/delete/<card_english>', methods=['GET', 'POST'])
+@app.route('/card/delete/<card_english>', methods=['POST'])
 def delete_card(card_english):
     first_name = None
     user_logged_in = is_user_logged_in()
     if user_logged_in:
-        # Fetch the first_name based on user_id
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
@@ -161,12 +152,19 @@ def delete_card(card_english):
     if not user_logged_in:
         return redirect(url_for('login'))
 
-    if request.method == "POST":
+    # Check if the card with the specified English text exists
+    card = cards_collection.find_one({"english": card_english})
+    if card:
+        # Card exists, so delete it
         cards_collection.delete_one({"english": card_english})
         message = 'Card deleted successfully!'
-        return render_template("cards.html", message=message, user_logged_in=user_logged_in, first_name=first_name)
+        return redirect(url_for('get_card_list'))
+    else:
+        message = 'Card not found.'
+        return jsonify({"message": message}), 404  # Return a JSON response indicating failure
 
     return redirect(url_for('get_card_list'))
+
 
 @app.route('/card/list', methods=['GET'])
 def get_card_list():
@@ -179,8 +177,7 @@ def get_card_list():
 
     search_term = request.args.get('searchTerm')
     category = request.args.get('category')
-    
-    # Build the MongoDB query based on search_term and category (if provided)
+
     query = {}
     cards = cards_collection.find(query)
     
