@@ -135,10 +135,8 @@ def create_card():
             "difficulty": difficulty,
             "category": category
         }
-        english = cards_collection.insert_one(card_data).inserted_id
 
-        # Connect the author to the book in bookauthor_collection
-        cards_collection.insert_one({"english": english})
+        cards_collection.insert_one(card_data)
         message = 'Card created successfully!'
 
         english = cards_collection.find()
