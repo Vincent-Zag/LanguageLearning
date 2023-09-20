@@ -5,11 +5,10 @@
     <title>Cards</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Additional CSS to style the flip effect */
         .card-flip {
-            position: relative;
             perspective: 1000px;
-            cursor: pointer; /* Add cursor pointer to indicate clickability */
+            cursor: pointer;
+            height: 300px; /* Set a fixed height for all cards */
         }
 
         .card-inner {
@@ -25,10 +24,13 @@
             height: 100%;
             position: absolute;
             backface-visibility: hidden;
-            padding-top: 18%;
             text-align: center;
             font-family: 'Roboto', sans-serif;
-            
+            display: flex;
+            align-items: center; /* Vertically center content */
+            justify-content: center; /* Horizontally center content */
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .card-front {
@@ -43,37 +45,36 @@
             transform: rotateY(180deg);
         }
 
-        .custom-shape-divider-bottom-1694687427 {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
-    line-height: 0;
-    transform: rotate(180deg);
-}
+        .delete-button {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: red;
+            cursor: pointer;
+        }
 
-.custom-shape-divider-bottom-1694687427 svg {
-    position: relative;
-    display: block;
-    width: calc(144% + 1.3px);
-    height: 290px;
-}
+        .card:hover .delete-button {
+            display: block;
+        }
 
-.custom-shape-divider-bottom-1694687427 .shape-fill {
-  fill:   #000;
-   
-}    
+        .delete-button:hover {
+            color: darkred;
+        }
     </style>
 </head>
 
 <body>
     {% include 'nav_menu.html' %}
+
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-10 offset-md-1">
                 <h2>Flashcards</h2>
-                <div class="row" style="height: 200px;">
+                <div class="row">
                     {% for card in cards %}
                     <div class="col-md-4 mt-4 card-flip">
                         <div class="card card-inner">
@@ -85,6 +86,7 @@
                             <div class="card-back">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ card.english }}</h5>
+                                    <button class="delete-button" onclick="showConfirmModal('{{ card.english }}')">&#128465;</button>
                                 </div>
                             </div>
                         </div>
@@ -98,21 +100,46 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <div class="custom-shape-divider-bottom-1694687427">
-        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
-        </svg>
-    </div>
-    <script>
-        // JavaScript to handle card click
-        const cards = document.querySelectorAll('.card-flip');
 
+    <script>
+        const cards = document.querySelectorAll('.card-flip');
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('card-clicked');
             });
         });
+
+        function showConfirmModal(cardEnglish) {
+            document.getElementById('cardEnglish').textContent = cardEnglish;
+            const form = document.getElementById('deleteCardForm');
+            form.action = `/card/delete/${cardEnglish}`; // Set the form action dynamically
+            $('#confirmDeleteModal').modal('show');
+        }
     </script>
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="deleteCardForm" action="" method="POST">
+                    <div class="modal-body">
+                        Are you sure you want to delete the card with English: <strong><span id="cardEnglish"></span></strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
