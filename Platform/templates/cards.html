@@ -5,10 +5,71 @@
     <title>Cards</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        .card-flip {
-            perspective: 1000px;
+        .button-20 {
+            appearance: button;
+            background-color: #932687;
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+            border: 1px solid #932687;
+            border-radius: 1rem;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
+            box-sizing: border-box;
+            color: #FFFFFF;
             cursor: pointer;
-            height: 300px; /* Set a fixed height for all cards */
+            display: inline-block;
+            font-family: Inter,sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+            margin: 0;
+            padding: .5rem 1rem;
+            text-align: center;
+            text-transform: none;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+        }
+
+        .button-20:focus:not(:focus-visible),
+        .button-20:focus {
+            outline: 0; 
+        }
+
+        .button-20:hover {
+            background-color: #cd2572;
+            border-color: #c521a6;
+        }
+
+        .button-20:focus {
+            background-color: #cd2572;
+            border-color: #c521a6;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        .button-20:active {
+            background-color: #cd2572;
+            background-image: none;
+            border-color: #c521a6;
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+        }
+
+        .button-20:active:focus {
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(215, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        .button-20:disabled {
+            background-image: none;
+            box-shadow: none;
+            opacity: .65;
+            pointer-events: none;
+        }
+
+        .card-flip {
+            perspective: 750px;
+            cursor: pointer;
+            height: 200px; 
+            width: 200px;
         }
 
         .card-inner {
@@ -17,7 +78,9 @@
             transform-style: preserve-3d;
             transition: transform 0.5s;
         }
-
+        body {
+            background-color: #f5f5f5; 
+        }
         .card-front,
         .card-back {
             width: 100%;
@@ -27,18 +90,21 @@
             text-align: center;
             font-family: 'Roboto', sans-serif;
             display: flex;
-            align-items: center; /* Vertically center content */
-            justify-content: center; /* Horizontally center content */
+            align-items: center; 
+            justify-content: center; 
             padding: 10px;
             box-sizing: border-box;
         }
 
         .card-front {
             transform: rotateY(0deg);
+            background-color: #f8f9fa; 
         }
 
         .card-back {
             transform: rotateY(180deg);
+            background-color: rgb(147,38,135); /* Back card background color */
+            color: white;
         }
 
         .card-clicked .card-inner {
@@ -53,7 +119,7 @@
             background: none;
             border: none;
             font-size: 24px;
-            color: red;
+            color: rgb(34, 24, 24);
             cursor: pointer;
         }
 
@@ -62,7 +128,7 @@
         }
 
         .delete-button:hover {
-            color: darkred;
+            color: rgb(30, 26, 26);
         }
     </style>
 </head>
@@ -74,18 +140,19 @@
         <div class="row">
             <div class="col-md-10 offset-md-1">
                 <h2>Flashcards</h2>
+                <a href="/create_card" class="button-20">Create a Card</a>
                 <div class="row">
                     {% for card in cards %}
                     <div class="col-md-4 mt-4 card-flip">
                         <div class="card card-inner">
                             <div class="card-front">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ card.translation }}</h5>
+                                    <h5 class="card-title">{{ card.english }}</h5>
                                 </div>
                             </div>
                             <div class="card-back">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ card.english }}</h5>
+                                    <h5 class="card-title">{{ card.translation }}</h5>
                                     <button class="delete-button" onclick="showConfirmModal('{{ card.english }}')">&#128465;</button>
                                 </div>
                             </div>

@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 import bcrypt
  
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'xyzsdfg'
 
 # Initialize MongoDB client
@@ -302,6 +302,7 @@ def get_cards_by_difficulty():
     card_list = [{'_id': str(card['_id']), 'english': card['english'], 'translation': card['translation']} for card in cards]
 
     return jsonify(card_list), 200
+
 
 
 if __name__ == "__main__":
