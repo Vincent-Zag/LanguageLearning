@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
+from datetime import datetime
 import re
 import bcrypt
 
@@ -108,14 +109,81 @@ def register():
     return render_template('register.html', message=message, first_name=first_name)
 
 #Quiz Endpoint
-#Create Quiz
+#Get Quiz
 # @app.route('/quiz/get-quiz')
 # def get_quiz():
 
-# #create quiz
-# @app.route('/quiz/create-quiz')
-# def create_quiz():
+#Get quiz by difficulty and category
+@app.route('/quiz/category-difficulty')
+def get_quiz_cat_dif():
+    user_logged_in = is_user_logged_in()
+    # check if the user is logged in
+    # if user_logged_in:
 
+
+#create quiz
+@app.route('/quiz/create_quiz', methods=['GET','POST'])
+def create_quiz():
+    user_logged_in = is_user_logged_in()
+    if user_logged_in:
+        # Will be empty at the start
+        quiz_insert_success = request.args.get('result')
+
+        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+        if user:
+            #get user name
+            user_first_name = user.get('first_name')
+            user_last_name = user.get('last_name')
+
+    if not is_user_logged_in():
+        return redirect(url_for('login'))
+    
+    if request.method == "POST":
+        print("here1")
+        # Getting the quiz data prepared
+        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        quiz_name = request.form.get('name')
+        difficulty = int(request.form.get("difficulty"))
+
+        # Obtaining the quiz questions 
+        quiz_ids = request.form.getlist("selectedCards")
+
+        quiz_ids = [ObjectId(question) for question in quiz_ids]
+
+        quiz_questions = []
+
+        for id in quiz_ids:
+            question_doc = cards_collection.find_one({"_id": ObjectId(id)})
+            if question_doc:
+                new_doc = {
+                    'card_id': question_doc["_id"],
+                    'english': question_doc["english"]
+                }
+                quiz_questions.append(new_doc)
+
+        #Creating the quiz data
+        quiz_data = {
+            "user_name": user_first_name + " " + user_last_name,
+            "quiz_name": quiz_name,
+            "flashcards": quiz_questions,
+            "difficulty": difficulty,
+            "num_of_questions": len(quiz_questions),
+            "timestamp": now
+        }
+        
+        result = quiz_collection.insert_one(quiz_data)
+        success = False
+        if str(result.inserted_id):
+            success = True
+
+        # Getting the list of questions information
+        cards = cards_collection.find({})
+
+        return redirect(url_for('create_quiz', result=success))
+    
+        # Getting the list of questions information
+    cards = cards_collection.find({})
+    return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, result=quiz_insert_success)
 
 
 #Questions Endpoint
@@ -146,10 +214,9 @@ def create_card():
             "difficulty": difficulty,
             "category": category
         }
-        english = cards_collection.insert_one(card_data).inserted_id
-
+        
         # Connect the author to the book in bookauthor_collection
-        cards_collection.insert_one({"english": english})
+        cards_collection.insert_one(card_data)
         message = 'Card created successfully!'
 
         english = cards_collection.find()
@@ -222,6 +289,24 @@ def get_cards_by_category():
             'category': cards['category'],
             'difficulty': cards['difficulty']
         }
+
+    return jsonify(card_list), 200
+
+@app.route('/get-cards-by-difficulty', methods=['GET'])
+def get_cards_by_difficulty():
+    difficulty = request.args.get('difficulty', type=int)
+    print(difficulty)
+
+    query = {}
+    if 0 <= difficulty <= 5:
+        if difficulty != 0:
+            query['difficulty'] = difficulty
+    else:
+        return jsonify([{"message": "Invalid difficulty value."}]), 400
+    
+    cards = cards_collection.find(query)
+
+    card_list = [{'_id': str(card['_id']), 'english': card['english'], 'translation': card['translation']} for card in cards]
 
     return jsonify(card_list), 200
 
