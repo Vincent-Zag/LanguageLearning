@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Quiz</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight&family=Inter:wght@700&family=Montserrat:wght@600;900&display=swap" rel="stylesheet">
+    <style>
+       
+/* CSS Button*/
+
+.button-20 {
+  appearance: button;
+  background-color: #932687;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+  border: 1px solid #932687;
+  border-radius: 1rem;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Inter,sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
+  padding: .5rem 1rem;
+  text-align: center;
+  text-transform: none;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+}
+
+.button-20:focus:not(:focus-visible),
+.button-20:focus {
+  outline: 0;
+}
+
+.button-20:hover {
+  background-color: #cd2572;
+  border-color: #c521a6;
+}
+
+.button-20:focus {
+  background-color: #cd2572;
+  border-color: #c521a6;
+  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:active {
+  background-color: #cd2572;
+  background-image: none;
+  border-color: #c521a6;
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+}
+
+.button-20:active:focus {
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(215, 101, 235, 0.5) 0 0 0 .2rem;
+}
+
+.button-20:disabled {
+  background-image: none;
+  box-shadow: none;
+  opacity: .65;
+  pointer-events: none;
+}
+.custom-shape-divider-bottom-1694687427 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1694687427 svg {
+    position: relative;
+    display: block;
+    width: calc(144% + 1.3px);
+    height: 290px;
+}
+
+.custom-shape-divider-bottom-1694687427 .shape-fill {
+  fill:   #000;
+   
+}    
+    </style>
+</head>
+<body>
+    {% include 'nav_menu.html' %}
+    {% if user_logged_in %}
+        <div class="container mt-5">
+            <h2>Add Quiz</h2>
+            {% if result %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Quiz was successfully created!
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <form action="{{ url_for('create_quiz') }}" method="POST" onsubmit="return validateForm(event);">
+                <div class="form-group">
+                    <label for="name">Quiz Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" autocomplete="on" required>
+                </div>
+
+                <!-- Difficulty Selection -->
+                <div class="form-group">
+                    <label for="difficulty">Select Difficulty:</label>
+                    <select class="form-control" id="difficulty" name="difficulty" onchange="updateCardList()" required>
+                        <option value="0">All Levels</option>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                    </select>
+                </div>
+
+                <!-- Card Selection -->
+                <div class="form-group">
+                    <p style="margin-bottom: 4px;">Select Cards:</p>
+                    <div class="row" id="cardListContainer">
+                        {% for card in questions_list %}
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="{{ card._id }}" name="selectedCards" value="{{ card._id }}">
+                                <label class="form-check-label" for="{{ card._id }}">{{ card.english }} - {{ card.translation }}</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                
+                </div>
+                
+                <div class="alert alert-warning alert-dismissible fade show" id="validationAlert" role="alert" style="display: none;">
+                    You must select at least 5 cards
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <hr/>
+                <button type="submit" class="button-20">Create Quiz</button>
+            </form>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <div class="custom-shape-divider-bottom-1694687427">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+        <script>
+            const updateCardList = () => {
+                const selectedDifficulty = document.getElementById('difficulty').value;
+                const cardListContainer = document.getElementById('cardListContainer');
+
+                // Make an AJAX request to fetch the updated card list based on selectedDifficulty
+                // dynamic updates without refreshing the whole page
+                fetch(`/get-cards-by-difficulty?difficulty=${selectedDifficulty}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear the existing card list
+                        cardListContainer.innerHTML = '';
+
+                        // Populate the card checkboxes
+                        data.forEach(card => {
+                            const cardDiv = document.createElement('div');
+                            cardDiv.className = 'col-6 col-md-4 col-lg-3';
+                            cardDiv.innerHTML = `
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="${card._id}" name="selectedCards" value="${card._id}">
+                                    <label class="form-check-label" for="${card._id}">${card.english} - ${card.translation}</label>
+                                </div>
+                            `;
+                            cardListContainer.appendChild(cardDiv);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+            function validateForm(event) {
+                const checkboxes = document.querySelectorAll('input[name="selectedCards"]:checked');
+                const validationAlert = document.getElementById('validationAlert');
+
+                if (checkboxes.length < 5) {
+                    event.preventDefault();
+                    if(validationAlert.style.display === 'none'){
+                        validationAlert.style.display = 'block';
+                    }
+                } else {
+                    validationAlert.style.display = 'none';
+                }
+            }
+        </script>
+    {% else %}
+        <div class="col-md-6 offset-md-3">
+            <p class="login-message">You are not logged in. <a href="/login">Login</a> or <a href="/register">Register</a>.</p>
+        </div>
+    {% endif %}
+
+</body>
+</html>
