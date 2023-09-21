@@ -18,6 +18,10 @@ quiz_collection = db.quiz
 def is_user_logged_in():
     return 'user_id' in session
 
+@app.route('/')
+def root():
+    return redirect(url_for('index'))
+
 @app.route('/index')
 def index():
     first_name = None

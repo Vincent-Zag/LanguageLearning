@@ -29,16 +29,22 @@
             -webkit-user-select: none;
             touch-action: manipulation;
             vertical-align: middle;
-        }
 
-        .button-20:focus:not(:focus-visible),
-        .button-20:focus {
-            outline: 0; 
+            /* Remove underline on normal state */
+            text-decoration: none;
+            color: #FFFFFF; /* Set the text color to white */
         }
 
         .button-20:hover {
             background-color: #cd2572;
             border-color: #c521a6;
+            text-decoration: none; /* Remove underline on hover */
+            color: #FFFFFF; /* Set the text color to white on hover */
+        }
+
+        .button-20:focus:not(:focus-visible),
+        .button-20:focus {
+            outline: 0;
         }
 
         .button-20:focus {
