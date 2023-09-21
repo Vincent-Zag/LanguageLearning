@@ -20,19 +20,19 @@
         <div class="answer-options">
             <div class="form-check">
                 <input type="radio" class="form-check-input" id="option1" name="answer" value="option1">
-                <label class="form-check-label" for="option1">{{ quiz.flashcards[0].option1 }}</label>
+                <label class="form-check-label" for="option1"></label>
             </div>
             <div class="form-check">
                 <input type="radio" class="form-check-input" id="option2" name="answer" value="option2">
-                <label class="form-check-label" for="option2">{{ quiz.flashcards[0].option2 }}</label>
+                <label class="form-check-label" for="option2"></label>
             </div>
             <div class="form-check">
                 <input type="radio" class="form-check-input" id="option3" name="answer" value="option3">
-                <label class="form-check-label" for="option3">{{ quiz.flashcards[0].option3 }}</label>
+                <label class="form-check-label" for="option3"></label>
             </div>
             <div class="form-check">
                 <input type="radio" class="form-check-input" id="option4" name="answer" value="option4">
-                <label class="form-check-label" for="option4">{{ quiz.flashcards[0].option4 }}</label>
+                <label class="form-check-label" for="option4"></label>
             </div>
         </div>
 
@@ -45,41 +45,71 @@
 
     <script>
         var quizData = JSON.parse('{{ quiz | tojson | safe }}');
-        var current_question = 1;
+        var current_question = 0;
         var currentQuestionSpan = document.getElementById('currentQuestionSpan');
-        currentQuestionSpan.textContent = current_question;
+        currentQuestionSpan.textContent = current_question + 1;
+        var number_correct = 0;
 
-        function nextQuestion()  {
-            console.log(quizData);
+        const loadQuestion = () => {
+            // Fetch random answers for the current question using AJAX
+            fetch(`/get_random_answers?card_id=${quizData.flashcards[current_question].card_id.$oid}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the question text
+                    document.querySelector('.question p').textContent = quizData.flashcards[current_question].english;
+
+                    // Update answer options and labels
+                    // getting the index for the correct option
+                    let correct_option_index = 0;
+                    for (let i = 0; i < 4; i++) {
+                        const optionInput = document.getElementById(`option${i + 1}`);
+                        const optionLabel = document.querySelector(`#option${i + 1} + label`);
+                        const answerOption = data.options[i];
+                        if(data.options[i] === data.correct_answer){
+                            correct_option_index = i + 1;
+                        }
+
+                        optionInput.value = answerOption;
+                        optionLabel.textContent = answerOption;
+                    }
+
+                    // Update the correct answer for comparison
+                    const correctAnswer = data.correct_answer;
+                    const correctOptionInput = document.getElementById(`option${correct_option_index}`);
+                    correctOptionInput.dataset.correctAnswer = correctAnswer;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        const nextQuestion = () => {
             const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            const correctAnswer = selectedAnswer ? selectedAnswer.dataset.correctAnswer : null;
 
             if (selectedAnswer) {
-                // Handle the selected answer (e.g., calculate score, save answer)
+                // Deselecting all radio buttons in the "answer" group
+                const radioButtons = document.querySelectorAll('input[name="answer"]');
+                radioButtons.forEach(button => button.checked = false);
+                if (selectedAnswer.value === correctAnswer) {
+                    number_correct++;
+                }
 
-                // Moving to next question
+                // Increment the question index and load the next question
                 current_question++;
-
-                currentQuestionSpan.textContent = current_question;
-
-                if (current_question <= quizData.num_of_questions) {
-                    // Update the question and answer options
-                    document.querySelector('.question p').textContent = quizData.flashcards[current_question-1].english;
-
-                    document.querySelector('#option1 + label').textContent = quizData.flashcards[current_question].option1;
-                    document.querySelector('#option2 + label').textContent = quizData.flashcards[current_question].option2;
-                    document.querySelector('#option3 + label').textContent = quizData.flashcards[current_question].option3;
-                    document.querySelector('#option4 + label').textContent = quizData.flashcards[current_question].option4;
-
-                    // Clear the selected answer
-                    selectedAnswer.checked = false;
+                if (current_question < quizData.num_of_questions) {
+                    currentQuestionSpan.textContent = current_question + 1;
+                    loadQuestion();
                 } else {
-                    alert('Quiz completed!');
-                    // You can redirect the user to the result page or perform other actions
+                    // Redirecting the user to the result page or perform other actions
+                    window.location.href = `/quiz/score?score=${number_correct}&total_questions=${quizData.num_of_questions}&quiz_name=${quizData.quiz_name}`;
                 }
             } else {
                 alert('Please select an answer before proceeding.');
             }
         }
+
+        loadQuestion(); // This is to load the first question
     </script>
 </body>
 </html>

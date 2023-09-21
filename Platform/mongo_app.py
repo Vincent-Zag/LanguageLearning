@@ -4,6 +4,7 @@ from bson import json_util, ObjectId
 from datetime import datetime
 import re
 import bcrypt
+import random
  
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'xyzsdfg'
@@ -20,13 +21,6 @@ def is_user_logged_in():
 
 def parse_json(data):
     return json.loads(json_util.dumps(data))
-
-def calculate_score(quiz, user_answers):
-    score = 0
-    for question in quiz['flashcards']:
-        if user_answers.get(str(question['_id'])) == question['correct_answer']:
-            score += 1
-    return score
   
 @app.route('/')
 def root():
@@ -138,21 +132,26 @@ def take_quiz():
         quiz_id = request.args.get('quiz_id')
 
         quiz = parse_json(quiz_collection.find_one({'_id': ObjectId(quiz_id)}))
-        # if not quiz:
-        #     return render_template('quiz_not_found.html')
+        if not quiz:
+            return jsonify([{"message": "Quiz with the given id not found"}]), 404
         
     if not is_user_logged_in():
         return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        user_answers = request.form
-
-        score = calculate_score(quiz, user_answers)
-
-        # Redirecting to a result page with the score
-        return redirect(url_for('quiz_result', quiz_id=quiz_id, score=score))
-
     return render_template('take_quiz.html', user_logged_in=is_user_logged_in(), quiz=quiz)
+
+@app.route('/quiz/score', methods=['GET'])
+def quiz_score():
+    score = request.args.get('score', type=int)
+    total_questions = request.args.get('total_questions', type=int)
+    quiz_name = request.args.get('quiz_name')
+
+    if score is None or total_questions is None or quiz_name is None:
+        return jsonify({"message": "Please provide the relevant information for this page"}), 400
+    
+    percentage = round(100*(score / total_questions), 2)
+    return render_template('quiz_result.html', user_logged_in=is_user_logged_in(), score=score, total_questions=total_questions, percentage=percentage, quiz_name=quiz_name)
+
 
 #create quiz
 @app.route('/quiz/create_quiz', methods=['GET','POST'])
@@ -212,6 +211,45 @@ def create_quiz():
     # Getting the list of questions information
     cards = cards_collection.find({})
     return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, result=quiz_insert_success)
+
+#Getting random answers and the correct answer
+@app.route('/get_random_answers', methods=['GET'])
+def get_random_answers():
+    #retreive the answer for the question first
+    card_id = request.args.get('card_id')
+
+    if card_id:
+        options = []
+        card = parse_json(cards_collection.find_one({'_id': ObjectId(card_id)}))
+        if card:
+            # getting the correct answer option
+            correct_answer = card['translation']  
+            options.append(correct_answer)          
+        else:
+            return jsonify([{"message": "Card with the given id not found"}]), 404
+        
+        # now retrieving three other random options 
+        query = [
+            {
+                "$match": {
+                    "_id": {"$ne": ObjectId(card_id)} # we have to exclude the correct answer
+                 }
+            },
+            {
+                "$sample": {"size": 3}
+            }
+        ]
+        
+        result = list(cards_collection.aggregate(query))
+        for card in result:
+            options.append(card["translation"])
+        
+        random.shuffle(options)
+        return jsonify( {"options": options, "correct_answer": correct_answer} ), 200
+    else:
+        return jsonify([{"message": "Invalid card id value"}]), 400
+
+
 
 
 #Questions Endpoint
