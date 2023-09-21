@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Quiz</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'nav_menu.html' %}
+    <div class="container mt-5">
+        <h2>Quiz: {{ quiz.quiz_name }}</h2>
+        <hr/>
+        <p>Question <span id="currentQuestionSpan"></span> of {{ quiz.num_of_questions }}</p>
+
+        <div class="question">
+            <p>{{ quiz.flashcards[0].english }}</p>
+        </div>
+
+        <div class="answer-options">
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="option1" name="answer" value="option1">
+                <label class="form-check-label" for="option1">{{ quiz.flashcards[0].option1 }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="option2" name="answer" value="option2">
+                <label class="form-check-label" for="option2">{{ quiz.flashcards[0].option2 }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="option3" name="answer" value="option3">
+                <label class="form-check-label" for="option3">{{ quiz.flashcards[0].option3 }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="option4" name="answer" value="option4">
+                <label class="form-check-label" for="option4">{{ quiz.flashcards[0].option4 }}</label>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        var quizData = JSON.parse('{{ quiz | tojson | safe }}');
+        var current_question = 1;
+        var currentQuestionSpan = document.getElementById('currentQuestionSpan');
+        currentQuestionSpan.textContent = current_question;
+
+        function nextQuestion()  {
+            console.log(quizData);
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+
+            if (selectedAnswer) {
+                // Handle the selected answer (e.g., calculate score, save answer)
+
+                // Moving to next question
+                current_question++;
+
+                currentQuestionSpan.textContent = current_question;
+
+                if (current_question <= quizData.num_of_questions) {
+                    // Update the question and answer options
+                    document.querySelector('.question p').textContent = quizData.flashcards[current_question-1].english;
+
+                    document.querySelector('#option1 + label').textContent = quizData.flashcards[current_question].option1;
+                    document.querySelector('#option2 + label').textContent = quizData.flashcards[current_question].option2;
+                    document.querySelector('#option3 + label').textContent = quizData.flashcards[current_question].option3;
+                    document.querySelector('#option4 + label').textContent = quizData.flashcards[current_question].option4;
+
+                    // Clear the selected answer
+                    selectedAnswer.checked = false;
+                } else {
+                    alert('Quiz completed!');
+                    // You can redirect the user to the result page or perform other actions
+                }
+            } else {
+                alert('Please select an answer before proceeding.');
+            }
+        }
+    </script>
+</body>
+</html>
