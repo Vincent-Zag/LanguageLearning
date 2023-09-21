@@ -3,9 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Quizzes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    
+    {% include 'nav_menu.html' %}
+    {% if user_logged_in %}
+        {% if quizzes|length != 0 %}
+            <div class="container mt-5">
+                <h2>Quiz List</h2>
+                <hr/>
+                <div class="row" style="text-align: center;">
+                    {% for quiz in quizzes %}
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ quiz.quiz_name }}</h5>
+                                {% if quiz.difficulty|int == 0 %}
+                                    <p class="card-text" style="font-size: larger;">Difficulty: All levels</p>
+                                {% else %}
+                                    <p class="card-text" style="font-size: larger;">Difficulty: {{ quiz.difficulty }}</p>
+                                {% endif %}
+                                <p class="card-text">Number of Questions: {{ quiz.num_of_questions }}</p>
+                                <p class="card-text" style="font-size: smaller; font-style: italic;">Created by: {{ quiz.user_name }}</p>
+                                <a href="{{ url_for('take_quiz', quiz_id=quiz["_id"]["$oid"] ) }}" class="btn btn-primary">Take Quiz</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="col-md-6 offset-md-3">
+                <p class="create-quiz-message">Looks like there no quizzes available to take. Please create a quiz <a href="/quiz/create_quiz">here</a>.</p>
+            </div>
+        {% endif %}
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% else %}
+        <div class="col-md-6 offset-md-3">
+            <p class="login-message">You are not logged in. <a href="/login">Login</a> or <a href="/register">Register</a>.</p>
+        </div>
+    {% endif %}
 </body>
 </html>

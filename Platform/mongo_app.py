@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import json, Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from pymongo import MongoClient
-from bson import ObjectId
+from bson import json_util, ObjectId
 from datetime import datetime
 import re
 import bcrypt
@@ -17,6 +17,16 @@ quiz_collection = db.quiz
 
 def is_user_logged_in():
     return 'user_id' in session
+
+def parse_json(data):
+    return json.loads(json_util.dumps(data))
+
+def calculate_score(quiz, user_answers):
+    score = 0
+    for question in quiz['flashcards']:
+        if user_answers.get(str(question['_id'])) == question['correct_answer']:
+            score += 1
+    return score
 
 @app.route('/index')
 def index():
@@ -105,16 +115,40 @@ def register():
 
 #Quiz Endpoint
 #Get Quiz
-# @app.route('/quiz/get-quiz')
-# def get_quiz():
+@app.route('/quizzes', methods=['GET'])
+def get_all_quizzes():
+    if is_user_logged_in():
+        # retrieve all the quizzes
+        quizzes = parse_json(quiz_collection.find({}))
 
-#Get quiz by difficulty and category
-@app.route('/quiz/category-difficulty')
-def get_quiz_cat_dif():
-    user_logged_in = is_user_logged_in()
-    # check if the user is logged in
-    # if user_logged_in:
+    if not is_user_logged_in():
+        return redirect(url_for('login'))
+        
+    return render_template('quiz.html', user_logged_in=is_user_logged_in(), quizzes=quizzes)
 
+#Take the quiz
+@app.route('/take_quiz', methods=['GET', 'POST'])
+def take_quiz():
+    if is_user_logged_in():
+        # getting the quiz id from url
+        quiz_id = request.args.get('quiz_id')
+
+        quiz = parse_json(quiz_collection.find_one({'_id': ObjectId(quiz_id)}))
+        # if not quiz:
+        #     return render_template('quiz_not_found.html')
+        
+    if not is_user_logged_in():
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        user_answers = request.form
+
+        score = calculate_score(quiz, user_answers)
+
+        # Redirecting to a result page with the score
+        return redirect(url_for('quiz_result', quiz_id=quiz_id, score=score))
+
+    return render_template('take_quiz.html', user_logged_in=is_user_logged_in(), quiz=quiz)
 
 #create quiz
 @app.route('/quiz/create_quiz', methods=['GET','POST'])
@@ -130,11 +164,10 @@ def create_quiz():
             user_first_name = user.get('first_name')
             user_last_name = user.get('last_name')
 
-    if not is_user_logged_in():
+    if not user_logged_in:
         return redirect(url_for('login'))
     
     if request.method == "POST":
-        print("here1")
         # Getting the quiz data prepared
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         quiz_name = request.form.get('name')
@@ -171,12 +204,8 @@ def create_quiz():
         if str(result.inserted_id):
             success = True
 
-        # Getting the list of questions information
-        cards = cards_collection.find({})
-
-        return redirect(url_for('create_quiz', result=success))
-    
-        # Getting the list of questions information
+        return redirect(url_for('create_quiz', result=success))    
+    # Getting the list of questions information
     cards = cards_collection.find({})
     return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, result=quiz_insert_success)
 
@@ -288,7 +317,6 @@ def get_cards_by_category():
 @app.route('/get-cards-by-difficulty', methods=['GET'])
 def get_cards_by_difficulty():
     difficulty = request.args.get('difficulty', type=int)
-    print(difficulty)
 
     query = {}
     if 0 <= difficulty <= 5:
