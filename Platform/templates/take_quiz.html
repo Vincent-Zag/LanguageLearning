@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+        <button class="btn btn-primary" id="submitButton" onclick="nextQuestion()">Next</button>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -47,6 +47,7 @@
         var quizData = JSON.parse('{{ quiz | tojson | safe }}');
         var current_question = 0;
         var currentQuestionSpan = document.getElementById('currentQuestionSpan');
+        var nextButton = document.getElementById('submitButton');
         currentQuestionSpan.textContent = current_question + 1;
         var number_correct = 0;
 
@@ -98,6 +99,13 @@
                 // Increment the question index and load the next question
                 current_question++;
                 if (current_question < quizData.num_of_questions) {
+                    // Checking if we're on the last question
+                    console.log(current_question);
+                    if(current_question === 4){
+                        console.log("here");
+                        nextButton.textContent = 'Submit';
+                    }
+
                     currentQuestionSpan.textContent = current_question + 1;
                     loadQuestion();
                 } else {

@@ -116,41 +116,61 @@ def register():
 @app.route('/quizzes', methods=['GET'])
 def get_all_quizzes():
     if is_user_logged_in():
+        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+        if user:
+            #get user name
+            first_name = user.get('first_name')
+
         # retrieve all the quizzes
         quizzes = parse_json(quiz_collection.find({}))
 
     if not is_user_logged_in():
         return redirect(url_for('login'))
         
-    return render_template('quiz.html', user_logged_in=is_user_logged_in(), quizzes=quizzes)
+    return render_template('quiz.html', user_logged_in=is_user_logged_in(), first_name = first_name, quizzes=quizzes)
 
 #Take the quiz
 @app.route('/take_quiz', methods=['GET', 'POST'])
 def take_quiz():
     if is_user_logged_in():
+        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+        if user:
+            #get user name
+            first_name = user.get('first_name')
+
         # getting the quiz id from url
         quiz_id = request.args.get('quiz_id')
 
         quiz = parse_json(quiz_collection.find_one({'_id': ObjectId(quiz_id)}))
-        if not quiz:
+        if quiz is None:
             return jsonify([{"message": "Quiz with the given id not found"}]), 404
         
     if not is_user_logged_in():
         return redirect(url_for('login'))
 
-    return render_template('take_quiz.html', user_logged_in=is_user_logged_in(), quiz=quiz)
+    return render_template('take_quiz.html', user_logged_in=is_user_logged_in(), first_name=first_name, quiz=quiz)
 
 @app.route('/quiz/score', methods=['GET'])
 def quiz_score():
-    score = request.args.get('score', type=int)
-    total_questions = request.args.get('total_questions', type=int)
-    quiz_name = request.args.get('quiz_name')
+    if is_user_logged_in():
+        score = request.args.get('score', type=int)
+        total_questions = request.args.get('total_questions', type=int)
+        quiz_name = request.args.get('quiz_name')
 
-    if score is None or total_questions is None or quiz_name is None:
-        return jsonify({"message": "Please provide the relevant information for this page"}), 400
+        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+        if user:
+            #get user name
+            first_name = user.get('first_name')
+
+        if score is None or total_questions is None or quiz_name is None:
+            return jsonify({"message": "Please provide the relevant information for this page"}), 400
+        
+        percentage = round(100*(score / total_questions), 2)
+
+    if not is_user_logged_in():
+        return redirect(url_for('login'))
     
-    percentage = round(100*(score / total_questions), 2)
-    return render_template('quiz_result.html', user_logged_in=is_user_logged_in(), score=score, total_questions=total_questions, percentage=percentage, quiz_name=quiz_name)
+    return render_template('quiz_result.html', user_logged_in=is_user_logged_in(), score=score, total_questions=total_questions, percentage=percentage, quiz_name=quiz_name, first_name=first_name)
 
 
 #create quiz
@@ -210,7 +230,7 @@ def create_quiz():
         return redirect(url_for('create_quiz', result=success))    
     # Getting the list of questions information
     cards = cards_collection.find({})
-    return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, result=quiz_insert_success)
+    return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, first_name = user_first_name, result=quiz_insert_success)
 
 #Getting random answers and the correct answer
 @app.route('/get_random_answers', methods=['GET'])
