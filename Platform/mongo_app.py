@@ -123,7 +123,7 @@ def get_all_quizzes():
         quizzes = parse_json(quiz_collection.find({}))
     if not is_user_logged_in():
         return redirect(url_for('login'))
-            return render_template('quiz.html', user_logged_in=is_user_logged_in(), first_name = first_name, quizzes=quizzes)
+    return render_template('quiz.html', user_logged_in=is_user_logged_in(), first_name = first_name, quizzes=quizzes)
 
 #Take the quiz
 @app.route('/take_quiz', methods=['GET', 'POST'])
