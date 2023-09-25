@@ -9,7 +9,6 @@ import random
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'xyzsdfg'
 
-# Initialize MongoDB client
 client = MongoClient("mongodb+srv://admin:password101@quizbank.tx6gspj.mongodb.net/")
 db = client.get_database("translations")
 users_collection = db.users
@@ -111,8 +110,7 @@ def register():
 
     return render_template('register.html', message=message, first_name=first_name)
 
-#Quiz Endpoint
-#Get Quiz
+
 @app.route('/quizzes', methods=['GET'])
 def get_all_quizzes():
     if is_user_logged_in():
@@ -123,11 +121,9 @@ def get_all_quizzes():
 
         # retrieve all the quizzes
         quizzes = parse_json(quiz_collection.find({}))
-
     if not is_user_logged_in():
         return redirect(url_for('login'))
-        
-    return render_template('quiz.html', user_logged_in=is_user_logged_in(), first_name = first_name, quizzes=quizzes)
+            return render_template('quiz.html', user_logged_in=is_user_logged_in(), first_name = first_name, quizzes=quizzes)
 
 #Take the quiz
 @app.route('/take_quiz', methods=['GET', 'POST'])
@@ -140,14 +136,11 @@ def take_quiz():
 
         # getting the quiz id from url
         quiz_id = request.args.get('quiz_id')
-
         quiz = parse_json(quiz_collection.find_one({'_id': ObjectId(quiz_id)}))
         if quiz is None:
             return jsonify([{"message": "Quiz with the given id not found"}]), 404
-        
     if not is_user_logged_in():
         return redirect(url_for('login'))
-
     return render_template('take_quiz.html', user_logged_in=is_user_logged_in(), first_name=first_name, quiz=quiz)
 
 @app.route('/quiz/score', methods=['GET'])
@@ -172,18 +165,13 @@ def quiz_score():
     
     return render_template('quiz_result.html', user_logged_in=is_user_logged_in(), score=score, total_questions=total_questions, percentage=percentage, quiz_name=quiz_name, first_name=first_name)
 
-
-#create quiz
 @app.route('/quiz/create_quiz', methods=['GET','POST'])
 def create_quiz():
     user_logged_in = is_user_logged_in()
     if user_logged_in:
-        # Will be empty at the start
         quiz_insert_success = request.args.get('result')
-
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
-            #get user name
             user_first_name = user.get('first_name')
             user_last_name = user.get('last_name')
 
@@ -191,18 +179,12 @@ def create_quiz():
         return redirect(url_for('login'))
     
     if request.method == "POST":
-        # Getting the quiz data prepared
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         quiz_name = request.form.get('name')
         difficulty = int(request.form.get("difficulty"))
-
-        # Obtaining the quiz questions 
         quiz_ids = request.form.getlist("selectedCards")
-
         quiz_ids = [ObjectId(question) for question in quiz_ids]
-
         quiz_questions = []
-
         for id in quiz_ids:
             question_doc = cards_collection.find_one({"_id": ObjectId(id)})
             if question_doc:
@@ -211,8 +193,6 @@ def create_quiz():
                     'english': question_doc["english"]
                 }
                 quiz_questions.append(new_doc)
-
-        #Creating the quiz data
         quiz_data = {
             "user_name": user_first_name + " " + user_last_name,
             "quiz_name": quiz_name,
@@ -221,45 +201,38 @@ def create_quiz():
             "num_of_questions": len(quiz_questions),
             "timestamp": now
         }
-        
         result = quiz_collection.insert_one(quiz_data)
         success = False
         if str(result.inserted_id):
             success = True
-
         return redirect(url_for('create_quiz', result=success))    
-    # Getting the list of questions information
     cards = cards_collection.find({})
     return render_template("add_quiz.html", questions_list=cards, user_logged_in=user_logged_in, first_name = user_first_name, result=quiz_insert_success)
 
-#Getting random answers and the correct answer
+
 @app.route('/get_random_answers', methods=['GET'])
 def get_random_answers():
-    #retreive the answer for the question first
     card_id = request.args.get('card_id')
 
     if card_id:
         options = []
         card = parse_json(cards_collection.find_one({'_id': ObjectId(card_id)}))
         if card:
-            # getting the correct answer option
             correct_answer = card['translation']  
             options.append(correct_answer)          
         else:
             return jsonify([{"message": "Card with the given id not found"}]), 404
-        
-        # now retrieving three other random options 
+
         query = [
             {
                 "$match": {
-                    "_id": {"$ne": ObjectId(card_id)} # we have to exclude the correct answer
+                    "_id": {"$ne": ObjectId(card_id)} 
                  }
             },
             {
                 "$sample": {"size": 3}
             }
         ]
-        
         result = list(cards_collection.aggregate(query))
         for card in result:
             options.append(card["translation"])
@@ -269,43 +242,31 @@ def get_random_answers():
     else:
         return jsonify([{"message": "Invalid card id value"}]), 400
 
-
-
-
-#Questions Endpoint
-#Create Question
 @app.route('/create_card', methods=['GET','POST'])
 def create_card():
     first_name = None
     user_logged_in = is_user_logged_in()
     if user_logged_in:
-
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
-
     if not user_logged_in:
         return redirect(url_for('login'))
-
     if request.method == "POST":
         english = request.form.get("english")
         translation = request.form.get("translation")
         difficulty = int(request.form.get("difficulty"))
         category = request.form.get("category")
-
         card_data = {
             "english":english,
             "translation": translation,
             "difficulty": difficulty,
             "category": category
         }
-
         cards_collection.insert_one(card_data)
         message = 'Card created successfully!'
-
         english = cards_collection.find()
         return render_template("add_card.html", message=message, english=english, user_logged_in=user_logged_in, first_name=first_name)
-
     english = cards_collection.find()
     return render_template("add_card.html", english=english, user_logged_in=user_logged_in, first_name=first_name)
 
@@ -318,21 +279,16 @@ def delete_card(card_english):
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
         if user:
             first_name = user.get('first_name')
-
     if not user_logged_in:
         return redirect(url_for('login'))
-
-    # Check if the card with the specified English text exists
     card = cards_collection.find_one({"english": card_english})
     if card:
-        # Card exists, so delete it
         cards_collection.delete_one({"english": card_english})
         message = 'Card deleted successfully!'
         return redirect(url_for('get_card_list'))
     else:
         message = 'Card not found.'
-        return jsonify({"message": message}), 404  # Return a JSON response indicating failure
-
+        return jsonify({"message": message}), 404
     return redirect(url_for('get_card_list'))
 
 

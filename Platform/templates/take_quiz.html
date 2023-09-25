@@ -5,37 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Take Quiz</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        .button-20 {
+            appearance: button;
+            background-color: #932687;
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
+            border: 0px;
+            border-radius: 1rem;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline-block;
+            letter-spacing: 2.5px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0;
+            padding: .5rem 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out,
+                box-shadow .15s ease-in-out;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-20:focus:not(:focus-visible),
+        .button-20:focus {
+            outline: 0;
+        }
+
+        .button-20:hover {
+            background-color: #cd2572;
+            border-color: #c521a6;
+            transform: scale(1.05);
+            box-shadow: 0px 15px 20px rgba(211, 38, 115, 0.4);
+        }
+
+        .button-20:focus {
+            background-color: #cd2572;
+            border-color: #c521a6;
+            box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px,
+                rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        .button-20:active {
+            background-color: #cd2572;
+            background-image: none;
+            border-color: #c521a6;
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
+        }
+
+        .button-20:active:focus {
+            box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(215, 101, 235, 0.5) 0 0 0 .2rem;
+        }
+
+        .button-20:disabled {
+            background-image: none;
+            box-shadow: none;
+            opacity: .65;
+            pointer-events: none;
+        }
+
+        .answer-card {
+            width: 200px; /* Fixed width for all answer cards */
+            border: 2px solid #d1d1d1;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .answer-card.selected {
+            background-color: rgb(147, 38, 135);
+            color: #fff;
+            border-color: rgb(147, 38, 135);
+        }
+
+        .answer-card input[type="radio"] {
+            display: none; 
+        }
+
+        .answer-card label {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #d1d1d1;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .answer-card input[type="radio"]:checked + label {
+            background-color: rgb(147, 38, 135);
+            color: #fff;
+            border-color: rgb(147, 38, 135);
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selected-answer-card {
+            background-color: rgb(147, 38, 135);
+            color: #fff;
+            border-color: rgb(147, 38, 135);
+        }
+
+        .left-image,
+        .right-image {
+            flex: 1;
+        }
+
+        .center-content {
+            flex: 2;
+        }
+
+        .left-image img,
+        .right-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .answer-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        .form-check-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    </style>
 </head>
 <body>
     {% include 'nav_menu.html' %}
+    
     <div class="container mt-5">
-        <h2>Quiz: {{ quiz.quiz_name }}</h2>
         <hr/>
-        <p>Question <span id="currentQuestionSpan"></span> of {{ quiz.num_of_questions }}</p>
+        
+        <div class="content-container">
+            <div class="left-image">
+                <img src="../static/images/loginmonster.png" height="300" width="300">
+            </div>
+            
+            <div class="center-content">
+                <h2>Quiz: {{ quiz.quiz_name }}</h2>
+                <p>Question <span id="currentQuestionSpan"></span> of {{ quiz.num_of_questions }}</p>
+        
+                <div class="question">
+                    <p>{{ quiz.flashcards[0].english }}</p>
+                </div>
+        
+                <div class="answer-options">
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="option1" name="answer" value="option1">
+                        <label class="form-check-label answer-card" for="option1">Option 1</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="option2" name="answer" value="option2">
+                        <label class="form-check-label answer-card" for="option2">Option 2</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="option3" name="answer" value="option3">
+                        <label class="form-check-label answer-card" for="option3">Option 3</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="option4" name="answer" value="option4">
+                        <label class="form-check-label answer-card" for="option4">Option 4</label>
+                    </div>
+                    <button class="button-20" onclick="nextQuestion()">Next</button>
+                </div>
 
-        <div class="question">
-            <p>{{ quiz.flashcards[0].english }}</p>
+            </div>
+            
+            <div class="right-image">
+                <img src="../static/images/rightmonster.png" height="300" width="300">
+            </div>
         </div>
-
-        <div class="answer-options">
-            <div class="form-check">
-                <input type="radio" class="form-check-input" id="option1" name="answer" value="option1">
-                <label class="form-check-label" for="option1"></label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" id="option2" name="answer" value="option2">
-                <label class="form-check-label" for="option2"></label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" id="option3" name="answer" value="option3">
-                <label class="form-check-label" for="option3"></label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" id="option4" name="answer" value="option4">
-                <label class="form-check-label" for="option4"></label>
-            </div>
-        </div>
-
         <button class="btn btn-primary" id="submitButton" onclick="nextQuestion()">Next</button>
     </div>
 
@@ -52,15 +220,10 @@
         var number_correct = 0;
 
         const loadQuestion = () => {
-            // Fetch random answers for the current question using AJAX
             fetch(`/get_random_answers?card_id=${quizData.flashcards[current_question].card_id.$oid}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Update the question text
                     document.querySelector('.question p').textContent = quizData.flashcards[current_question].english;
-
-                    // Update answer options and labels
-                    // getting the index for the correct option
                     let correct_option_index = 0;
                     for (let i = 0; i < 4; i++) {
                         const optionInput = document.getElementById(`option${i + 1}`);
@@ -73,8 +236,6 @@
                         optionInput.value = answerOption;
                         optionLabel.textContent = answerOption;
                     }
-
-                    // Update the correct answer for comparison
                     const correctAnswer = data.correct_answer;
                     const correctOptionInput = document.getElementById(`option${correct_option_index}`);
                     correctOptionInput.dataset.correctAnswer = correctAnswer;
@@ -89,14 +250,17 @@
             const correctAnswer = selectedAnswer ? selectedAnswer.dataset.correctAnswer : null;
 
             if (selectedAnswer) {
-                // Deselecting all radio buttons in the "answer" group
-                const radioButtons = document.querySelectorAll('input[name="answer"]');
-                radioButtons.forEach(button => button.checked = false);
+                selectedAnswer.checked = false;
+                const answerCards = document.querySelectorAll('.answer-card');
+                answerCards.forEach(card => {
+                    card.classList.remove('selected');
+                    card.style.backgroundColor = ''; 
+                    card.style.color = ''; 
+                });
+
                 if (selectedAnswer.value === correctAnswer) {
                     number_correct++;
                 }
-
-                // Increment the question index and load the next question
                 current_question++;
                 if (current_question < quizData.num_of_questions) {
                     // Checking if we're on the last question
@@ -109,7 +273,6 @@
                     currentQuestionSpan.textContent = current_question + 1;
                     loadQuestion();
                 } else {
-                    // Redirecting the user to the result page or perform other actions
                     window.location.href = `/quiz/score?score=${number_correct}&total_questions=${quizData.num_of_questions}&quiz_name=${quizData.quiz_name}`;
                 }
             } else {
@@ -117,7 +280,19 @@
             }
         }
 
-        loadQuestion(); // This is to load the first question
+        const answerCards = document.querySelectorAll('.answer-card');
+        answerCards.forEach(card => {
+            card.addEventListener('click', () => {
+                answerCards.forEach(card => card.classList.remove('selected'));
+                card.classList.add('selected');
+                const radioInput = card.querySelector('input[type="radio"]');
+                if (radioInput) {
+                    radioInput.checked = true;
+                }
+            });
+        });
+
+        loadQuestion(); 
     </script>
 </body>
 </html>
